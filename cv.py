@@ -6,7 +6,7 @@ from collections import defaultdict
 import supervision as sv
 from ultralytics import YOLO
 
-model = YOLO('yolov8n.pt')
+model = YOLO('models/best.pt')
 
 cap = cv.VideoCapture(0)
 if not cap.isOpened():
@@ -25,12 +25,16 @@ while True:
     
     # Run YOLO prediction on the current frame
     # verbose=False suppresses console output, set to true for debugging
-    results = model.predict(source=frame, save=False, imgsz=320, conf=0.5, verbose=False)
-    box = results[0].boxes[0]
-    cls_id = int(box.cls[0])           # numeric class index
-    conf   = float(box.conf[0])        # confidence
-    label  = results[0].names[cls_id]           # human-readable class name
-    print(f"{label}: {conf:.2f}")
+    results = model.predict(source=frame, save=False, imgsz=320, conf=0.35, verbose=False)
+    
+    # Check if any objects were detected
+    if len(results[0].boxes) > 0:
+        box = results[0].boxes[0]
+        cls_id = int(box.cls[0])           # numeric class index
+        conf   = float(box.conf[0])        # confidence
+        label  = results[0].names[cls_id]           # human-readable class name
+        print(f"{label}: {conf:.2f}")
+
     # Plots the boxes, labels, and confidence scores over original frame
     annotated_frame = results[0].plot()
     # Display the resulting frame
